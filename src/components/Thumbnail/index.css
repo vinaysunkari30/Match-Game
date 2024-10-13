@@ -1,0 +1,15 @@
+.thumbnail-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  width: 150px;
+  height: 150px;
+  margin: 15px;
+  border: 2px solid black;
+}
+
+.thumbnail {
+  width: 150px;
+  height: 150px;
+}

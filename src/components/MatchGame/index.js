@@ -251,12 +251,44 @@ const initialList = [
   },
 ]
 
+const initialState = {
+  seconds: 60,
+  activeTabId: tabsList[0].tabId,
+  imagesList: initialList,
+  randomImage: initialList[0].imageUrl,
+  randomImgId: initialList[0].id,
+  score: 0,
+  isGameOver: false,
+}
+
 class MatchGame extends Component {
-  state = {
-    activeTabId: tabsList[0].tabId,
-    imagesList: initialList,
-    randomImage: initialList[0].imageUrl,
-    matchedImages: [],
+  state = initialState
+
+  componentDidMount() {
+    const {isGameOver, activeTabId} = this.state
+    if (isGameOver === false) {
+      this.intervalId = setInterval(this.setTimer, 1000)
+    } else {
+      clearInterval(this.intervalId)
+    }
+    const filter = initialList.filter(each => each.category === activeTabId)
+    this.setState({
+      imagesList: filter,
+    })
+  }
+
+  setTimer = () => {
+    const {seconds} = this.state
+    if (seconds === 0) {
+      this.setState({
+        isGameOver: true,
+      })
+      clearInterval(this.intervalId)
+    } else {
+      this.setState(prevState => ({
+        seconds: prevState.seconds - 1,
+      }))
+    }
   }
 
   onTabClick = id => {
@@ -269,46 +301,94 @@ class MatchGame extends Component {
   }
 
   onMatchThumbnail = id => {
+    const {randomImgId} = this.state
+    if (randomImgId === id) {
+      this.setState(prevState => ({
+        score: prevState.score + 1,
+      }))
+    } else {
+      this.setState({
+        isGameOver: true,
+      })
+      clearInterval(this.intervalId)
+    }
     const index = Math.ceil(Math.random() * initialList.length)
     const imgUrl = initialList[index].imageUrl
     this.setState({
       randomImage: imgUrl,
+      randomImgId: initialList[index].id,
     })
+  }
 
-    const matchedImg = initialList.filter(each => each.id === id)
-    this.setState(prevState => ({
-      matchedImages: [...prevState.matchedImages, matchedImg],
-    }))
+  playAgain = () => {
+    const {isGameOver} = this.state
+    if (isGameOver === true) {
+      this.setState(initialState)
+    }
   }
 
   render() {
-    const {activeTabId, imagesList, randomImage} = this.state
+    const {
+      activeTabId,
+      randomImage,
+      seconds,
+      score,
+      isGameOver,
+      imagesList,
+    } = this.state
+    let gameStatus
+    if (isGameOver === false) {
+      gameStatus = (
+        <div>
+          <img className="match-img" src={randomImage} alt="match" />
+          <ul className="tab-container">
+            {tabsList.map(each => (
+              <TabItem
+                key={each.tabId}
+                tabs={each}
+                isActive={each.tabId === activeTabId}
+                tabClick={this.onTabClick}
+              />
+            ))}
+          </ul>
+          <ul className="img-container">
+            {imagesList.map(each => (
+              <Thumbnail
+                key={each.id}
+                thumbnail={each}
+                toMatchThumbnail={this.onMatchThumbnail}
+              />
+            ))}
+                  
+          </ul>
+        </div>
+      )
+    } else {
+      gameStatus = (
+        <div>
+          <img
+            src="https://assets.ccbp.in/frontend/react-js/match-game-trophy.png"
+            alt="trophy"
+          />
+          <p>YOUR SCORE</p>
+          <p>{score}</p>
+          <button type="button" onClick={this.playAgain}>
+            <img
+              src="https://assets.ccbp.in/frontend/react-js/match-game-play-again-img.png"
+              alt="reset"
+            />
+            Play Again
+          </button>
+        </div>
+      )
+    }
+
     return (
       <div>
         <ul>
-          <NavBar />
+          <NavBar seconds={seconds} userScore={score} />
         </ul>
-        <img className="match-img" src={randomImage} alt="match" />
-        <ul className="tab-container">
-          {tabsList.map(each => (
-            <TabItem
-              key={each.tabId}
-              tabs={each}
-              isActive={each.tabId === activeTabId}
-              tabClick={this.onTabClick}
-            />
-          ))}
-        </ul>
-        <ul className="img-container">
-          {imagesList.map(each => (
-            <Thumbnail
-              key={each.id}
-              thumbnail={each}
-              toMatchThumbnail={this.onMatchThumbnail}
-            />
-          ))}
-                  
-        </ul>
+        <div>{gameStatus}</div>
       </div>
     )
   }

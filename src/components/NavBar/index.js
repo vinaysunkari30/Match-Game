@@ -1,16 +1,18 @@
-const NavBar = () => {
-  const score = 0
+const NavBar = props => {
+  const {seconds, userScore} = props
   return (
     <li>
+      <img
+        src="https://assets.ccbp.in/frontend/react-js/match-game-website-logo.png"
+        alt="website logo"
+      />
       <div>
+        <p>Score: {userScore}</p>
         <img
-          src="https://assets.ccbp.in/frontend/react-js/match-game-website-logo.png"
-          alt="website logo"
+          src="https://assets.ccbp.in/frontend/react-js/match-game-timer-img.png"
+          alt="timer"
         />
-      </div>
-      <div>
-        <p>{score}</p>
-        <p>60 Sec</p>
+        <p>{seconds} sec</p>
       </div>
     </li>
   )

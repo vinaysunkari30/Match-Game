@@ -1,9 +1,17 @@
+import './index.css'
+
 const TabItem = props => {
-  const {tabs} = props
-  const {displayText} = tabs
+  const {tabs, tabClick, isActive} = props
+  const {tabId, displayText} = tabs
+  const onTabClick = () => {
+    tabClick(tabId)
+  }
+  const color = isActive ? 'btn' : ''
   return (
     <li>
-      <button type="button">{displayText}</button>
+      <button type="button" className={color} onClick={onTabClick}>
+        {displayText}
+      </button>
     </li>
   )
 }
